@@ -7,10 +7,12 @@ const fs=require('fs');
 const url=require('url');
 
 var server = http.createServer(function(request, response){
-    var pathName =url.parse(request.url).pathname;
-    if (pathName === '')
-        pathName = 'index.html'
-        fs.readFile(__dirname + pathName, function(err, data){
+    var pathName = url.parse(request.url).pathname;
+    if (pathName === '/')
+       {
+         pathName = '/index.html'
+       }
+     fs.readFile(__dirname + pathName, function(err, data){
         if (err) {
            response.writeHead(404, {'Content-type':'text/plain'});
            response.write('Page Was Not Found');
@@ -35,7 +37,7 @@ socket.on('connection', (client) => {
 
     // FIXME: DB is reloading on client refresh. It should be persistent on new client
     // connections from the last time the server was run...
-console.log("this worked");
+    console.log("this worked");
     const DB = firstTodos.map((t) => {
         // Form new Todo objects
         return new Todo(title=t.title);
