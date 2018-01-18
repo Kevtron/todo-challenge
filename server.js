@@ -30,6 +30,10 @@ var server = http.createServer(function(request, response){
 server.listen(port);
 
 var socket = io.listen(server);
+const DB = firstTodos.map((t) => {
+        // Form new Todo objects
+        return new Todo(title=t.title, completed = t.completed);
+    });
 
 socket.on('connection', (client) => {
     // This is going to be our fake 'database' for this application
@@ -38,10 +42,6 @@ socket.on('connection', (client) => {
     // FIXME: DB is reloading on client refresh. It should be persistent on new client
     // connections from the last time the server was run...
 
-    var DB = firstTodos.map((t) => {
-        // Form new Todo objects
-        return new Todo(title=t.title, completed = t.completed);
-    });
 
     // Sends a message to the client to reload all todos
     const reloadTodos = (x) => {
@@ -50,6 +50,10 @@ socket.on('connection', (client) => {
         socket.emit('load', x);
     }
     
+    const refreshTodos = (t) => {
+        socket.emit('refresh', t);
+    }
+
     const persist = (t) => 
     {
         const content = JSON.stringify(t);
@@ -115,11 +119,18 @@ socket.on('connection', (client) => {
         //Persist todos
         persist(DB)
         // Send the latest todos to the client
-        reloadTodos([]) //HACK FIX THIS
-        reloadTodos(DB)
+        refreshTodos([newTodo])
     });
 
-    client.on('completeAll', (t) => {});
+    client.on('completeAll', (t) => {
+        for (var i in DB) 
+            {
+                DB[i].completed = true;
+            }     
+        persist(DB);
+        refreshTodos(DB);
+         
+    });
 
     // Send the DB downstream on connect
     reloadTodos(DB);

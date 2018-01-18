@@ -35,9 +35,12 @@ function render(todo) {
     console.log(todo);
     const listItem = document.createElement('li');
     const listItemText = document.createTextNode(todo.title);
-    listItem.classList.add(todo.completed ? "complete" : "pending");
+    listItem.id = todo.title.replace(" ","-");
+    listItem.classList.toggle("complete", todo.completed)
+    listItem.classList.toggle("pending", !todo.completed)
     listItem.appendChild(listItemText);
 
+    //Consider refactoring
     const completeButton = document.createElement("button");
     completeButton.type = "button";
     completeButton.innerHTML="complete"; 
@@ -55,10 +58,24 @@ function render(todo) {
     list.append(listItem);
 }
 
+function refresh(todo) {
+    console.log(todo)
+    const listItem = document.getElementById(todo.title.replace(" ","-"))
+    listItem.classList.toggle("complete", todo.completed)
+    listItem.classList.toggle("pending", !todo.completed)
+}
+
 
 // NOTE: These are listeners for events from the socket
-// This event is for (re)loading the entire list of todos from the socket
+// This event is for appending to the list of todos from the socket
 socket.on('load', (todos) => {
     console.log(todos);
     todos.forEach((todo) => render(todo));
 });
+
+// This event is for updating members of the list of todos from the socket
+socket.on('refresh', (todos) => {
+    console.log(todos);
+    todos.forEach((todo) => refresh(todo));
+});
+
