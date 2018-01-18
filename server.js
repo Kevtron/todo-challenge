@@ -44,11 +44,25 @@ socket.on('connection', (client) => {
     });
 
     // Sends a message to the client to reload all todos
-    const reloadTodos = () => {
+    const reloadTodos = (x) => {
         console.log("reload");
-        console.log(DB);
-        socket.emit('load', DB);
+        console.log(x);
+        socket.emit('load', x);
     }
+    
+    const persist = (t) => 
+    {
+        const content = JSON.stringify(t);
+
+        fs.writeFile("data.json", content, 'utf8', function (err) {
+            if (err) {
+            return console.log(err);
+        }
+
+         console.log("The file was saved!");
+        }); 
+
+     }
 
     // Accepts when a client makes a new todo
     client.on('make', (t) => {
@@ -59,13 +73,16 @@ socket.on('connection', (client) => {
         // Push this newly created todo to our database
         DB.push(newTodo);
         console.log(DB);
+
+        //Persist todos
+        persist(DB)
         // Send the latest todos to the client
         // FIXME: This sends all todos every time, could this be more efficient?
-        reloadTodos();
+        reloadTodos([newTodo])
     });
 
     // Send the DB downstream on connect
-    reloadTodos();
+    reloadTodos(DB);
 });
 
 console.log('Waiting for clients to connect');
