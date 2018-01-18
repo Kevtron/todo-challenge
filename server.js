@@ -4,17 +4,25 @@ const firstTodos = require('./data');
 const Todo = require('./todo');
 const port = 3003;
 const fs=require('fs');
+const url=require('url');
 
-var server = http.createServer(function(req, res){
-  fs.readFile(__dirname + '/index.html',function (err, data) {
-    if (err) 
-    {
-        res.writeHead(500);
-        return res.end('Error loading index.html');
-    }
-    res.writeHead(200);
-    res.end(data);
-    });
+var server = http.createServer(function(request, response){
+    var pathName =url.parse(request.url).pathname;
+    if (pathName === '')
+        pathName = 'index.html'
+        fs.readFile(__dirname + pathName, function(err, data){
+        if (err) {
+           response.writeHead(404, {'Content-type':'text/plain'});
+           response.write('Page Was Not Found');
+           response.end();
+        }
+        else
+        {
+           response.writeHead(200);
+           response.write(data);
+           response.end();
+        }
+    })
 });
 
 server.listen(port);
