@@ -9,13 +9,27 @@ function add() {
 
     // Emit the new todo as some data to the socket
     socket.emit('make', {
-        title : input.value
+        title : input.value,
+        completed : false
     });
 
     // Clear the input
     input.value = '';
     // TODO: refocus the element
 }
+
+function deleteOne() {
+    socket.emit('deleteOne')    
+};
+function deleteAll() {
+    socket.emit('deleteAll')
+};
+function completeOne() {
+    socket.emit('completeOne')
+};
+function completeAll() {
+    socket.emit('completeAll')
+};
 
 function render(todo) {
     console.log(todo);

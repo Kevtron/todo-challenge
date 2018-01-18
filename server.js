@@ -37,10 +37,9 @@ socket.on('connection', (client) => {
 
     // FIXME: DB is reloading on client refresh. It should be persistent on new client
     // connections from the last time the server was run...
-    console.log("this worked");
-    const DB = firstTodos.map((t) => {
+    var DB = firstTodos.map((t) => {
         // Form new Todo objects
-        return new Todo(title=t.title);
+        return new Todo(title=t.title, completed = t.completed);
     });
 
     // Sends a message to the client to reload all todos
@@ -77,9 +76,16 @@ socket.on('connection', (client) => {
         //Persist todos
         persist(DB)
         // Send the latest todos to the client
-        // FIXME: This sends all todos every time, could this be more efficient?
         reloadTodos([newTodo])
     });
+    
+    client.on('deleteOne',(t) => {});
+
+    client.on('deleteAll', (t) => {});
+
+    client.on('completeOne',(t) => {});
+
+    client.on('completeAll', (t) => {});
 
     // Send the DB downstream on connect
     reloadTodos(DB);
