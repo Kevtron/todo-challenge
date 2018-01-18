@@ -3,10 +3,18 @@ const io = require('socket.io');
 const firstTodos = require('./data');
 const Todo = require('./todo');
 const port = 3003;
+const fs=require('fs');
 
 var server = http.createServer(function(req, res){
-    res.writeHead(200,{ 'Content-Type': 'text/html'});
-    res.end('<h1>Oh, you found me. Cool.</h1>');
+  fs.readFile(__dirname + '/index.html',function (err, data) {
+    if (err) 
+    {
+        res.writeHead(500);
+        return res.end('Error loading index.html');
+    }
+    res.writeHead(200);
+    res.end(data);
+    });
 });
 
 server.listen(port);

@@ -1,4 +1,4 @@
-const server = io('http://localhost:3003/');
+const server = io('http://localhost:3003/').connect();
 const list = document.getElementById('todo-list');
 
 // NOTE: These are all our globally scoped functions for interacting with the server
