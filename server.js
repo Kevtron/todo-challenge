@@ -29,7 +29,7 @@ var server = http.createServer(function(request, response){
 
 server.listen(port);
 
-var socket = io.listen(server);
+const socket = io.listen(server);
 const DB = firstTodos.map((t) => {
         // Form new Todo objects
         return new Todo(title=t.title, completed = t.completed);
@@ -45,13 +45,15 @@ socket.on('connection', (client) => {
 
     // Sends a message to the client to reload all todos
     const reloadTodos = (x) => {
-        console.log("reload");
-        console.log(x);
         socket.emit('load', x);
     }
     
     const refreshTodos = (t) => {
         socket.emit('refresh', t);
+    }
+
+    const removeTodos = (t) => {
+        socket.emit('remove', t);
     }
 
     const persist = (t) => 
@@ -86,25 +88,22 @@ socket.on('connection', (client) => {
     client.on('deleteOne',(t) => {
         let obj = DB.find((o, i) => {
             if (o.title === t.title) {
-                console.log(i);
-                console.log(DB);
                 DB.splice(i, 1);
-                console.log(DB);
                 return true; // stop searching
             }
         });
         //Persist todos
         persist(DB)
-        // Send the latest todos to the client
-        reloadTodos([])
-        reloadTodos(DB);
+        // Send the todo to remove to the client
+        const toRemove = new Todo(title=t.title);
+        removeTodos([toRemove]);
     });
 
     client.on('deleteAll', () => {
         //burn it down man
-        DB=[];
+        removeTodos(DB);
+        DB.splice(0,DB.length);//empty the array
         persist(DB);
-        reloadTodos([]);
      });
 
     client.on('completeOne',(t) => {

@@ -65,6 +65,11 @@ function refresh(todo) {
     listItem.classList.toggle("pending", !todo.completed)
 }
 
+function remove(todo) {
+    console.log(todo)
+    const listItem = document.getElementById(todo.title.replace(" ","-"))
+    listItem.parentNode.removeChild(listItem);
+}
 
 // NOTE: These are listeners for events from the socket
 // This event is for appending to the list of todos from the socket
@@ -79,3 +84,8 @@ socket.on('refresh', (todos) => {
     todos.forEach((todo) => refresh(todo));
 });
 
+// This event is for removing members of the list of todos from the socket
+socket.on('remove', (todos) => {
+    console.log(todos);
+    todos.forEach((todo) => remove(todo));
+});
