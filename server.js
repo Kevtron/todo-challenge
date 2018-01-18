@@ -96,7 +96,12 @@ socket.on('connection', (client) => {
         reloadTodos(DB);
     });
 
-    client.on('deleteAll', () => { });
+    client.on('deleteAll', () => {
+        //burn it down man
+        DB=[];
+        persist(DB);
+        reloadTodos([]);
+     });
 
     client.on('completeOne',(t) => {
         var newTodo = new Todo(title=t.title, completed=true);
