@@ -45,17 +45,20 @@ socket.on('connection', (client) => {
 
     // Sends a message to the client to reload all todos
     const reloadTodos = () => {
-        server.emit('load', DB);
+        console.log("reload");
+        console.log(DB);
+        socket.emit('load', DB);
     }
 
     // Accepts when a client makes a new todo
     client.on('make', (t) => {
         // Make a new todo
         const newTodo = new Todo(title=t.title);
+        console.log(newTodo);
 
         // Push this newly created todo to our database
         DB.push(newTodo);
-
+        console.log(DB);
         // Send the latest todos to the client
         // FIXME: This sends all todos every time, could this be more efficient?
         reloadTodos();
