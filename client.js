@@ -18,14 +18,14 @@ function add() {
     // TODO: refocus the element
 }
 
-function deleteOne() {
-    socket.emit('deleteOne')    
+function deleteOne(s) {
+    socket.emit('deleteOne',{title : s})    
 };
 function deleteAll() {
     socket.emit('deleteAll')
 };
-function completeOne() {
-    socket.emit('completeOne')
+function completeOne(s) {
+    socket.emit('completeOne',{title : s})
 };
 function completeAll() {
     socket.emit('completeAll')
@@ -35,9 +35,26 @@ function render(todo) {
     console.log(todo);
     const listItem = document.createElement('li');
     const listItemText = document.createTextNode(todo.title);
+    listItem.classList.add(todo.completed ? "complete" : "pending");
     listItem.appendChild(listItemText);
+
+    const completeButton = document.createElement("button");
+    completeButton.type = "button";
+    completeButton.innerHTML="complete"; 
+    completeButton.value = false;
+    completeButton.onclick = function(){completeOne(todo.title)};
+    listItem.appendChild(completeButton);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.innerHTML="delete"; 
+    deleteButton.value = false;
+    deleteButton.onclick = function(){deleteOne(todo.title)};
+    listItem.appendChild(deleteButton);
+
     list.append(listItem);
 }
+
 
 // NOTE: These are listeners for events from the socket
 // This event is for (re)loading the entire list of todos from the socket

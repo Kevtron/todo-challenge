@@ -37,6 +37,7 @@ socket.on('connection', (client) => {
 
     // FIXME: DB is reloading on client refresh. It should be persistent on new client
     // connections from the last time the server was run...
+
     var DB = firstTodos.map((t) => {
         // Form new Todo objects
         return new Todo(title=t.title, completed = t.completed);
@@ -60,7 +61,6 @@ socket.on('connection', (client) => {
 
          console.log("The file was saved!");
         }); 
-
      }
 
     // Accepts when a client makes a new todo
@@ -79,11 +79,40 @@ socket.on('connection', (client) => {
         reloadTodos([newTodo])
     });
     
-    client.on('deleteOne',(t) => {});
+    client.on('deleteOne',(t) => {
+        let obj = DB.find((o, i) => {
+            if (o.title === t.title) {
+                console.log(i);
+                console.log(DB);
+                DB.splice(i, 1);
+                console.log(DB);
+                return true; // stop searching
+            }
+        });
+        //Persist todos
+        persist(DB)
+        // Send the latest todos to the client
+        reloadTodos([])
+        reloadTodos(DB);
+    });
 
-    client.on('deleteAll', (t) => {});
+    client.on('deleteAll', () => { });
 
-    client.on('completeOne',(t) => {});
+    client.on('completeOne',(t) => {
+        var newTodo = new Todo(title=t.title, completed=true);
+        let obj = DB.find((o, i) => {
+            if (o.title === t.title) {
+                DB[i] = newTodo;
+                return true; // stop searching
+            }
+        });
+        
+        //Persist todos
+        persist(DB)
+        // Send the latest todos to the client
+        reloadTodos([]) //HACK FIX THIS
+        reloadTodos(DB)
+    });
 
     client.on('completeAll', (t) => {});
 
