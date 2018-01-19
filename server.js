@@ -38,14 +38,17 @@ const DB = firstTodos.map((t) => {
 socket.on('connection', (client) => {
     // This is going to be our fake 'database' for this application
     // Parse all default Todo's from db
-
-    // FIXME: DB is reloading on client refresh. It should be persistent on new client
-    // connections from the last time the server was run...
-
-
     // Sends a message to the client to reload all todos
-    const reloadTodos = (x) => {
+    const loadTodos = (x) => {
         socket.emit('load', x);
+    }
+
+    const useCache = (x) => {
+        socket.emit('cache', x);
+    }
+
+    const updateTodos = (t) => {
+        socket.emit('update', x);
     }
     
     const refreshTodos = (t) => {
@@ -65,7 +68,6 @@ socket.on('connection', (client) => {
             return console.log(err);
         }
 
-         console.log("The file was saved!");
         }); 
      }
 
@@ -73,16 +75,14 @@ socket.on('connection', (client) => {
     client.on('make', (t) => {
         // Make a new todo
         const newTodo = new Todo(title=t.title);
-        console.log(newTodo);
 
         // Push this newly created todo to our database
         DB.push(newTodo);
-        console.log(DB);
 
         //Persist todos
         persist(DB)
         // Send the latest todos to the client
-        reloadTodos([newTodo])
+        updateTodos([newTodo])
     });
     
     client.on('deleteOne',(t) => {
@@ -132,7 +132,54 @@ socket.on('connection', (client) => {
     });
 
     // Send the DB downstream on connect
-    reloadTodos(DB);
+    var pushDB = checkCache(DB, client.handshake.query.todos);   
+    if (pushDB)
+    {
+        console.log("send");
+        loadTodos(DB);
+    } else {
+        console.log("cache");
+        useCache();
+    }   
+
 });
 
+function checkCache(DB, cacheString){
+
+    if(cacheString){
+    var cacheDict = JSON.parse(cacheString).reduce(function(map, obj) {
+        map[obj.title] = obj.completed;
+        return map;
+    }, {});
+    }else {
+        var cache ={};
+    } 
+
+    var dbDict =  DB.reduce(function(map, obj) {
+        map[obj.title] = obj.completed;
+        return map;
+    }, {});
+
+    var pushDB = false;
+    if (dbDict.size != cacheDict.size)
+    {
+        pushDB = true;
+    } 
+    else
+    {
+    for (var key in cacheDict) 
+        {
+            var val = cacheDict[key];
+            var compare = dbDict[key];
+            if(compare != val)
+            {
+            pushDB = true;
+            break;
+            }
+        }
+    }
+    return pushDB
+ }
 console.log('Waiting for clients to connect');
+
+
