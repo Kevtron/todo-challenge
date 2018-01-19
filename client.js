@@ -47,14 +47,14 @@ function render(todo) {
     //Consider refactoring
     const completeButton = document.createElement("button");
     completeButton.type = "button";
-    completeButton.innerHTML="complete"; 
+    completeButton.innerHTML="<i class=\"fa fa-check-circle-o\" aria-hidden=\"true\"></i>"; 
     completeButton.value = false;
     completeButton.onclick = function(){completeOne(todo.title)};
     listItem.appendChild(completeButton);
 
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
-    deleteButton.innerHTML="delete"; 
+    deleteButton.innerHTML="<i class=\"fa fa-trash\" aria-hidden=\"true\"></i>"; 
     deleteButton.value = false;
     deleteButton.onclick = function(){deleteOne(todo.title)};
     listItem.appendChild(deleteButton);
