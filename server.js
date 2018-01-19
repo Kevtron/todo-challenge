@@ -48,7 +48,7 @@ socket.on('connection', (client) => {
     }
 
     const updateTodos = (t) => {
-        socket.emit('update', x);
+        socket.emit('update', t);
     }
     
     const refreshTodos = (t) => {
@@ -103,7 +103,7 @@ socket.on('connection', (client) => {
         //burn it down man
         removeTodos(DB);
         DB.splice(0,DB.length);//empty the array
-        persist(DB);
+        persist([]);
      });
 
     client.on('completeOne',(t) => {
@@ -135,24 +135,22 @@ socket.on('connection', (client) => {
     var pushDB = checkCache(DB, client.handshake.query.todos);   
     if (pushDB)
     {
-        console.log("send");
         loadTodos(DB);
     } else {
-        console.log("cache");
         useCache();
     }   
 
 });
 
 function checkCache(DB, cacheString){
-
-    if(cacheString){
+    if(cacheString && cacheString != 'undefined'){
     var cacheDict = JSON.parse(cacheString).reduce(function(map, obj) {
         map[obj.title] = obj.completed;
         return map;
     }, {});
     }else {
-        var cache ={};
+        return true;
+
     } 
 
     var dbDict =  DB.reduce(function(map, obj) {
